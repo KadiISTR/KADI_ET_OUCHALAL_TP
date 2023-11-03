@@ -8,6 +8,12 @@ class Departement(models.Model):
     def __str__(self):
         return f"Departement numero : {self.numero}"
 
+    def json(self):
+        return {"numero": self.numero, "prix_m2": self.prix_m2}
+
+    def json_extended(self):
+        return self.json()
+
 
 class Machine(models.Model):
     nom = models.CharField(max_length=100)
@@ -15,6 +21,15 @@ class Machine(models.Model):
 
     def __str__(self):
         return f"Nom de la machine est : {self.nom}"
+
+    def costs(self):
+        return self.prix
+
+    def json(self):
+        return {"nom": self.nom, "prix": self.prix}
+
+    def json_extended(self):
+        return self.json()
 
 
 class Ingredient(models.Model):
@@ -24,13 +39,31 @@ class Ingredient(models.Model):
         return f"{self.nom}"
 
 
+def json(self):
+    return {"nom": self.nom}
+
+
+def json_extended(self):
+    return self.json()
+
+
 class Prix(models.Model):
     ingredient = models.ForeignKey(Ingredient, on_delete=models.PROTECT)
     departement = models.ForeignKey(Departement, on_delete=models.PROTECT)
     prix = models.IntegerField()
 
     def __str__(self):
-        return f"Le cout de {self.ingredient.nom} dans le {self.departement.numero} est {self.prix} euros/kg"
+        return f"Cout de {self.ingredient.nom} : {self.prix} euros/kg"
+
+    def json(self):
+        return {
+            "ingredient": self.ingredient.id,
+            "departement": self.departement.id,
+            "prix": self.prix,
+        }
+
+    def json_extended(self):
+        return self.json()
 
 
 class QuantiteIngredient(models.Model):
@@ -39,6 +72,18 @@ class QuantiteIngredient(models.Model):
 
     def __str__(self):
         return f"{self.quantite} kg de {self.ingredient.nom}"
+
+    def costs(self, departement):
+        return (
+            self.quantite
+            * self.ingredient.prix_set.get(departement__numero=departement.numero).prix
+        )
+
+    def json(self):
+        return {"ingredient": self.ingredient.id, "quantite": self.quantite}
+
+    def json_extended(self):
+        return self.json()
 
 
 class Action(models.Model):
@@ -53,6 +98,30 @@ class Action(models.Model):
     def __str__(self):
         return f"Action : {self.commande}"
 
+    def json(self):
+        liste_ingredients = []
+        for ingredient in self.ingredients.all():
+            liste_ingredients.append(ingredient.id)
+        return {
+            "machine": self.machine.id,
+            "commande": self.commande,
+            "duree": self.duree,
+            "ingredients": liste_ingredients,
+            "action": self.action.id,
+        }
+
+    def json_extended(self):
+        liste_ingredients = []
+        for ingredient in self.ingredients.all():
+            liste_ingredients.append(ingredient.json_extended())
+        return {
+            "machine": self.machine.json_extended(),
+            "commande": self.commande,
+            "duree": self.duree,
+            "ingredients": liste_ingredients,
+            "action": self.action.json_extended(),
+        }
+
 
 class Recette(models.Model):
     nom = models.CharField(max_length=100)
@@ -60,6 +129,12 @@ class Recette(models.Model):
 
     def __str__(self):
         return f"Nom de la recette est : {self.nom}"
+
+    def json(self):
+        return {"nom": self.nom, "action": self.action.id}
+
+    def json_extended(self):
+        return self.json()
 
 
 class Usine(models.Model):
@@ -70,4 +145,50 @@ class Usine(models.Model):
     stocks = models.ManyToManyField(QuantiteIngredient)
 
     def __str__(self):
-        return f"Usine ({self.departement.numero}) de {self.taille} m2"
+        return f"Usine (departement[{self.departement.numero}]) de {self.taille} m2"
+
+    def costs(self):
+        prix_usine = self.taille * self.departement.prix_m2
+        prix_stocks = 0
+        prix_machines = 0
+        for machine in self.machines.all():
+            prix_machines += machine.costs()
+        for stock in self.stocks.all():
+            prix_stocks += stock.costs(self.departement)
+        return prix_usine + prix_machines + prix_stocks
+
+    def json(self):
+        liste_machines = []
+        liste_recettes = []
+        liste_stocks = []
+        for machine in self.machines.all():
+            liste_machines.append(machine.id)
+        for recette in self.recettes.all():
+            liste_recettes.append(recette.id)
+        for stock in self.stocks.all():
+            liste_stocks.append(stock.id)
+        return {
+            "departement": self.departement.id,
+            "taille": self.taille,
+            "machines": liste_machines,
+            "recettes": liste_recettes,
+            "stocks": liste_recettes,
+        }
+
+    def json_extended(self):
+        liste_machines = []
+        liste_recettes = []
+        liste_stocks = []
+        for machine in self.machines.all():
+            liste_machines.append(machine.json_extended)
+        for recette in self.recettes.all():
+            liste_recettes.append(recette.json_extended)
+        for stock in self.stocks.all():
+            liste_stocks.append(stock.json_extended)
+        return {
+            "departement": self.departement.json_extended,
+            "taille": self.taille,
+            "machines": liste_machines,
+            "recettes": liste_recettes,
+            "stocks": liste_recettes,
+        }
