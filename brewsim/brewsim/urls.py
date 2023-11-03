@@ -22,5 +22,5 @@ urlpatterns = [
     path("action/<int:pk>", views.ActionDetailView.as_view(), name="action"),
     path("recette/<int:pk>", views.RecetteDetailView.as_view(), name="recette"),
     path("usine/<int:pk>", views.UsineDetailView.as_view(), name="usine"),
-    # path("api/<int:pk>", views.APIDetailView.as_view(), name="api"),
+    path("api/<int:pk>", views.APIDetailView.as_view(), name="api"),
 ]

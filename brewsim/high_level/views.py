@@ -69,3 +69,10 @@ class UsineDetailView(DetailView):
 
     def render_to_response(self, context, **response_kwargs):
         return HttpResponse(dumps(self.object.json()))
+
+
+class APIDetailView(DetailView):
+    model = Departement
+
+    def render_to_response(self, context, **response_kwargs):
+        return HttpResponse(dumps(self.object.json_extended()))
