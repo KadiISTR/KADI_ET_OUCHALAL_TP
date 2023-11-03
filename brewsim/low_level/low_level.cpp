@@ -21,6 +21,23 @@ class Departement
         void affichage ();
 
 };
+
+int main()
+{
+    Departement dep1(31,1500);
+    dep1.affichage();
+
+    cpr::Response r = cpr::Get(cpr::Url{"http://localhost:8000/departement/1"});
+    cout << "la réponse est: " << r.text << endl;
+    json j= json::parse(r.text);
+    cout << "numero: " << j["numero"]<< " et " << "prix_m2: "<< j["prix_m2"]<< endl;
+
+    Departement dep2(89,3000);
+    cout<<dep2;
+
+    return 0;
+}
+
 Departement::Departement(int numero, int prix_m2 ) : _numero(numero), _prix_m2(prix_m2)
 {}
 
@@ -50,20 +67,4 @@ void Departement::affichage ()
 {
     cout << "Numero de departement:" <<  _numero <<",\t";
     cout << "Prix du metre carre : "<< _prix_m2 << endl;
-}
-
-int main()
-{
-    Departement dep1(31,1500);
-    dep1.affichage();
-
-    cpr::Response r = cpr::Get(cpr::Url{"http://localhost:8000/departement/1"});
-    cout << "la réponse est: " << r.text << endl;
-    json j= json::parse(r.text);
-    cout << "numero: " << j["numero"]<< " et " << "prix_m2: "<< j["prix_m2"]<< endl;
-
-    Departement dep2(89,3000);
-    cout<<dep2;
-
-    return 0;
 }
