@@ -22,7 +22,7 @@ class MachineModelTests(TestCase):
 
         departement_1 = Departement.objects.create(numero=31, prix_m2=2000)
 
-        chauffage = Machine.objects.create(nom="chauffage", prix=1000)
+        four = Machine.objects.create(nom="four", prix=1000)
         mash_tun = Machine.objects.create(nom="mash_tun", prix=2000)
 
         houblon = Ingredient.objects.create(nom="Houblon")
@@ -41,16 +41,14 @@ class MachineModelTests(TestCase):
         orge_witbier = stock_orge
         orge_witbier.quantite = stock_orge.quantite / 5
 
-        ebullition = Action.objects.create(
-            machine=chauffage, commande="ebullition", duree=5
-        )
+        ebullition = Action.objects.create(machine=four, commande="ebullition", duree=5)
         ebullition.ingredients.add(houblon_witbier)
         ebullition.ingredients.add(orge_witbier)
 
         witbier = Recette.objects.create(nom="Witbier", action=ebullition)
 
         usine = Usine.objects.create(departement=departement_1, taille=50)
-        usine.machines.add(chauffage)
+        usine.machines.add(four)
         usine.machines.add(mash_tun)
         usine.recettes.add(witbier)
         usine.stocks.add(stock_houblon)

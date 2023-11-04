@@ -38,13 +38,11 @@ class Ingredient(models.Model):
     def __str__(self):
         return f"{self.nom}"
 
+    def json(self):
+        return {"nom": self.nom}
 
-def json(self):
-    return {"nom": self.nom}
-
-
-def json_extended(self):
-    return self.json()
+    def json_extended(self):
+        return self.json()
 
 
 class Prix(models.Model):
@@ -57,8 +55,8 @@ class Prix(models.Model):
 
     def json(self):
         return {
-            "ingredient": self.ingredient.id,
-            "departement": self.departement.id,
+            "ingredient": self.ingredient.nom,
+            "departement": self.departement.numero,
             "prix": self.prix,
         }
 
@@ -80,7 +78,7 @@ class QuantiteIngredient(models.Model):
         )
 
     def json(self):
-        return {"ingredient": self.ingredient.id, "quantite": self.quantite}
+        return {"ingredient": self.ingredient.nom, "quantite": self.quantite}
 
     def json_extended(self):
         return self.json()
@@ -100,14 +98,14 @@ class Action(models.Model):
 
     def json(self):
         liste_ingredients = []
-        for ingredient in self.ingredients.all():
-            liste_ingredients.append(ingredient.id)
+        for ing in self.ingredients.all():
+            liste_ingredients.append(ing.ingredient.nom)
         return {
-            "machine": self.machine.id,
+            "machine": self.machine.nom,
             "commande": self.commande,
             "duree": self.duree,
             "ingredients": liste_ingredients,
-            "action": self.action.id,
+            # "action": self.action,
         }
 
     def json_extended(self):
@@ -119,7 +117,7 @@ class Action(models.Model):
             "commande": self.commande,
             "duree": self.duree,
             "ingredients": liste_ingredients,
-            "action": self.action.json_extended(),
+            # "action": self.action.json_extended(),
         }
 
 
@@ -162,17 +160,17 @@ class Usine(models.Model):
         liste_recettes = []
         liste_stocks = []
         for machine in self.machines.all():
-            liste_machines.append(machine.id)
+            liste_machines.append(machine.nom)
         for recette in self.recettes.all():
-            liste_recettes.append(recette.id)
+            liste_recettes.append(recette.nom)
         for stock in self.stocks.all():
-            liste_stocks.append(stock.id)
+            liste_stocks.append(stock.ingredient.nom)
         return {
-            "departement": self.departement.id,
+            "departement": self.departement.numero,
             "taille": self.taille,
             "machines": liste_machines,
             "recettes": liste_recettes,
-            "stocks": liste_recettes,
+            "stocks": liste_stocks,
         }
 
     def json_extended(self):
