@@ -105,7 +105,7 @@ class Action(models.Model):
             "commande": self.commande,
             "duree": self.duree,
             "ingredients": liste_ingredients,
-            # "action": self.action,
+            # "action": self.action.id,
         }
 
     def json_extended(self):
@@ -129,7 +129,10 @@ class Recette(models.Model):
         return f"Nom de la recette est : {self.nom}"
 
     def json(self):
-        return {"nom": self.nom, "action": self.action.id}
+        liste_ingredients = []
+        for ing in self.action.ingredients.all():
+            liste_ingredients.append(ing.ingredient.nom)
+        return {"nom": self.nom, "action_ingredients": liste_ingredients}
 
     def json_extended(self):
         return self.json()

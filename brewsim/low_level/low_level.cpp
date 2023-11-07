@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
 
@@ -31,6 +32,7 @@ class Machine
         Machine(int id);
         void set(string n, int p);
         void affichage ();
+        friend class Action;
 
 };
 
@@ -46,6 +48,9 @@ class Ingredient
         void set (string n);
         void affichage ();
         friend class Prix;
+        friend class QuantiteIngredient;
+        friend class Action;
+        friend class Recette;
 
 };
 
@@ -62,6 +67,53 @@ class Prix
         void affichage ();
 
 };
+
+class QuantiteIngredient
+{
+    private:
+        unique_ptr<Ingredient> _ingredient;
+        int _quantite;
+
+    public:
+        QuantiteIngredient(unique_ptr<Ingredient> ingredient, int quantite);
+        QuantiteIngredient(int id);
+        void set (string n, int q);
+        void affichage();
+        friend class Action;
+        friend class Recette;
+
+};
+
+class Action
+{
+    private:
+        unique_ptr<Machine> _machine;
+        string _commande;
+        int _duree;
+        vector<unique_ptr<QuantiteIngredient>> _ingredients;
+
+    public:
+        Action(unique_ptr<Machine> machine, string commande, int duree, vector<unique_ptr<QuantiteIngredient>> ingredients);
+        Action(int id);
+        void set (string n, string c, int d, vector<string> i);
+        void affichage();
+        friend class Recette;
+};
+
+class Recette
+{
+    private:
+        string _nom;
+        unique_ptr<Action> _action;
+
+    public:
+        Recette(string nom, unique_ptr<Action> action);
+        Recette(int id);
+        void set (string n, vector<string> i);
+        void affichage();
+
+};
+
 /*-----------------------------------------------------------------------------------*/
 int main()
 {
@@ -97,6 +149,46 @@ int main()
 
     Prix prix_cons_id(4);
     prix_cons_id.affichage();
+
+    unique_ptr<Ingredient> orge = make_unique<Ingredient>("orge");
+    QuantiteIngredient qi_cons(move(orge), 100);
+    qi_cons.affichage();
+
+    QuantiteIngredient qi_id(9);
+    qi_id.affichage();
+
+    // Stockez les objets dans des variables
+    unique_ptr<Machine> four = make_unique<Machine>("four", 1000);
+    unique_ptr<Ingredient> orge_ = make_unique<Ingredient>("orge");
+    unique_ptr<Ingredient> houblon_ = make_unique<Ingredient>("houblon");
+    vector<unique_ptr<QuantiteIngredient>> ings;
+    ings.push_back(make_unique<QuantiteIngredient>( move(houblon_) , 50));
+    ings.push_back(make_unique<QuantiteIngredient>( move(orge_) , 100));
+
+    // Créez un objet Action en utilisant les variables précédemment créées
+    Action act_cons(move(four), "ebullition", 5, move(ings));
+    act_cons.affichage();
+
+    Action act_cons_id(4);
+    act_cons_id.affichage();
+
+
+    unique_ptr<Machine> ffour = make_unique<Machine>("four", 1000);
+    unique_ptr<Ingredient> oorge_ = make_unique<Ingredient>("orge");
+    unique_ptr<Ingredient> hhoublon_ = make_unique<Ingredient>("houblon");
+    vector<unique_ptr<QuantiteIngredient>> iings;
+    iings.push_back(make_unique<QuantiteIngredient>( move(hhoublon_) , 50));
+    iings.push_back(make_unique<QuantiteIngredient>( move(oorge_) , 100));
+
+    unique_ptr<Action> actt = make_unique<Action>(move(ffour),"ebullition", 5, move(iings) );
+
+    Recette rec_cons("witbier",move(actt) );
+    rec_cons.affichage();
+
+    Recette rec_cons_id (4);
+    rec_cons_id.affichage();
+
+
 
     return 0;
 }
@@ -207,4 +299,117 @@ void Prix::affichage ()
     cout << "Ingredient: " << _ingredient->_nom << ",\t";
     cout << "Departement: " << _departement->_numero << ",\t";
     cout << "Prix: " << _prix << endl;
+}
+/*----------------------------------------------------------------------------*/
+QuantiteIngredient::QuantiteIngredient(unique_ptr<Ingredient> ingredient, int quantite): _ingredient(std::move(ingredient)), _quantite(quantite)
+{}
+
+QuantiteIngredient::QuantiteIngredient(int id)
+{
+    string url = "http://localhost:8000/quantiteingredient/" + to_string(id);
+    cpr::Response r = cpr::Get(cpr::Url{url});
+	json data = json::parse(r.text);
+    set(data["ingredient"], data["quantite"]);
+}
+void QuantiteIngredient::set (string n, int q)
+{
+    string nom_ingredient = n;
+    int quantite_ = q;
+
+    unique_ptr<Ingredient> ingredient = make_unique<Ingredient>(nom_ingredient);
+
+    _ingredient = move(ingredient);
+    _quantite = quantite_;
+}
+void QuantiteIngredient::affichage()
+{
+    cout << "Ingredient: " << _ingredient->_nom << ",\t";
+    cout << "Quantite: " << _quantite << endl;
+}
+/*------------------------------------------------------------------*/
+Action::Action(unique_ptr<Machine> machine, string commande, int duree, vector<unique_ptr<QuantiteIngredient>> ingredients): _machine(std::move(machine)), _commande(commande), _duree(duree), _ingredients(std::move(ingredients))
+{}
+
+Action::Action(int id)
+{
+    string url = "http://localhost:8000/action/" + to_string(id);
+    cpr::Response r = cpr::Get(cpr::Url{url});
+	json data = json::parse(r.text);
+    set(data["machine"], data["commande"], data["duree"], data["ingredients"]);
+
+}
+void Action::set (string n, string c, int d, vector<string> i)
+{
+    string nom_machine = n;
+    string commande_ = c;
+    int duree_ = d;
+    vector<string> ingredients_ = i;
+
+    unique_ptr<Machine> mach = make_unique<Machine>(nom_machine, 1000);
+    vector<unique_ptr<QuantiteIngredient>> ingss;
+    for(const auto& i : ingredients_)
+    {
+        ingss.push_back(make_unique<QuantiteIngredient>(move(make_unique<Ingredient>(i)),100));
+    }
+
+    _machine = move(mach);
+    _ingredients = move(ingss);
+    _commande = commande_;
+    _duree = duree_;
+}
+
+void Action::affichage()
+{
+    cout << "Machine: " << _machine->_nom << ",\t";
+    cout << "Commande: " << _commande << ",\t";
+    cout << "Duree: " << _duree << ",\t";
+    cout << "Ingredients: [";
+    for (const auto& ing : _ingredients)
+    {
+        cout << ing-> _ingredient->_nom << ", ";
+    }
+    cout << "]" << endl;
+}
+/*----------------------------------------------------------------------------*/
+Recette::Recette(string nom, unique_ptr<Action> action): _nom(nom), _action(std::move(action))
+{}
+
+Recette::Recette(int id)
+{
+    string url = "http://localhost:8000/recette/" + to_string(id);
+    cpr::Response r = cpr::Get(cpr::Url{url});
+	json data = json::parse(r.text);
+    set(data["nom"], data["action_ingredients"]);
+}
+
+void Recette::set(string n, vector<string> i)
+{
+    string nom_recette = n;
+
+    vector<string> action_ingredients_ = i;
+
+
+    unique_ptr<Machine> four = make_unique<Machine>("four", 1000);
+    vector<unique_ptr<QuantiteIngredient>> ingsss;
+    for(const auto& i : action_ingredients_)
+    {
+        ingsss.push_back(make_unique<QuantiteIngredient>(move(make_unique<Ingredient>(i)),100));
+    }
+    unique_ptr<Action> acttt = make_unique<Action>(move(four),"ebullition", 5, move(ingsss) );
+
+
+    _nom = nom_recette;
+    _action = move(acttt);
+}
+
+void Recette::affichage()
+{
+    cout<<"Recette: "<<_nom<<", \t";
+    cout<<"Ingredients: [";
+     for (const auto& ing : _action->_ingredients)
+    {
+        cout << ing->_ingredient->_nom << ", ";
+    }
+    cout << "]" << endl;
+
 }
