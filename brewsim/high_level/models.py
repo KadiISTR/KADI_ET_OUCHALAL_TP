@@ -9,7 +9,7 @@ class Departement(models.Model):
         return f"Departement numero : {self.numero}"
 
     def json(self):
-        return {"numero": self.numero, "prix_m2": self.prix_m2}
+        return {"numero": self.numero, "prix_m2": self.prix_m2, "id": self.id}
 
     def json_extended(self):
         return self.json()
@@ -26,7 +26,7 @@ class Machine(models.Model):
         return self.prix
 
     def json(self):
-        return {"nom": self.nom, "prix": self.prix}
+        return {"nom": self.nom, "prix": self.prix, "id": self.id}
 
     def json_extended(self):
         return self.json()
@@ -39,7 +39,7 @@ class Ingredient(models.Model):
         return f"{self.nom}"
 
     def json(self):
-        return {"nom": self.nom}
+        return {"nom": self.nom, "id": self.id}
 
     def json_extended(self):
         return self.json()
@@ -58,6 +58,7 @@ class Prix(models.Model):
             "ingredient": self.ingredient.nom,
             "departement": self.departement.numero,
             "prix": self.prix,
+            "id": self.id,
         }
 
     def json_extended(self):
@@ -78,7 +79,11 @@ class QuantiteIngredient(models.Model):
         )
 
     def json(self):
-        return {"ingredient": self.ingredient.nom, "quantite": self.quantite}
+        return {
+            "ingredient": self.ingredient.nom,
+            "quantite": self.quantite,
+            "id": self.id,
+        }
 
     def json_extended(self):
         return self.json()
@@ -105,6 +110,7 @@ class Action(models.Model):
             "commande": self.commande,
             "duree": self.duree,
             "ingredients": liste_ingredients,
+            "id": self.id
             # "action": self.action.id,
         }
 
@@ -132,7 +138,7 @@ class Recette(models.Model):
         liste_ingredients = []
         for ing in self.action.ingredients.all():
             liste_ingredients.append(ing.ingredient.nom)
-        return {"nom": self.nom, "action_ingredients": liste_ingredients}
+        return {"nom": self.nom, "action_ingredients": liste_ingredients, "id": self.id}
 
     def json_extended(self):
         return self.json()
@@ -174,6 +180,7 @@ class Usine(models.Model):
             "machines": liste_machines,
             "recettes": liste_recettes,
             "stocks": liste_stocks,
+            "id": self.id,
         }
 
     def json_extended(self):

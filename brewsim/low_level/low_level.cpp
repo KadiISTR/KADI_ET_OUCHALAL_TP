@@ -8,15 +8,31 @@
 using namespace std;
 using json = nlohmann::json;
 
+int get_id(string url);
+
+const int id_dep = get_id("http://localhost:8000/departement/1");
+const int id_mach_1 = get_id("http://localhost:8000/machine/5");
+const int id_mach_2 = get_id("http://localhost:8000/machine/6");
+const int id_ing_1 = get_id("http://localhost:8000/ingredient/4");
+const int id_ing_2 = get_id("http://localhost:8000/ingredient/5");
+const int id_prix_1 = get_id("http://localhost:8000/prix/4");
+const int id_prix_2 = get_id("http://localhost:8000/prix/5");
+const int id_qi_1 = get_id("http://localhost:8000/quantiteingredient/8");
+const int id_qi_2 = get_id("http://localhost:8000/quantiteingredient/9");
+const int id_action = get_id("http://localhost:8000/action/4");
+const int id_recette = get_id("http://localhost:8000/recette/4");
+const int id_usine = get_id("http://localhost:8000/usine/2");
+
+
 class Departement
 {
     private:
         int _numero;
         int _prix_m2;
     public:
-        Departement(int numero, int prix_m2 );
+        Departement(int numero , int prix_m2 );
         Departement(json data);
-        Departement(int id);
+        Departement(int id = 0);
         void set(int n, int p);
         void affichage ();
         friend class Prix;
@@ -36,7 +52,6 @@ class Machine
         void affichage ();
         friend class Action;
         friend class Usine;
-
 };
 
 class Ingredient
@@ -67,7 +82,7 @@ class Prix
     public:
         Prix(unique_ptr<Ingredient> ingredient, unique_ptr<Departement> departement, int prix);
         Prix(int id);
-        void set (string n, int d, int p);
+        void set (const int p, const int i);
         void affichage ();
 
 };
@@ -130,9 +145,9 @@ class Usine
 
     public:
         Usine(unique_ptr<Departement> departement, int taille, vector<unique_ptr<Machine>> machines, vector<unique_ptr<Recette>> recettes,\
-         vector<unique_ptr<QuantiteIngredient>> stocks);
-        //Usine(int id);
-        //void set(string n, int t, vector<string> nsm, vector<string> nsr, vector<string> nsi);
+        vector<unique_ptr<QuantiteIngredient>> stocks);
+        Usine(int id);
+        void set(int nu, int t, vector<string> nsm, vector<string> nsr, vector<string> nsi);
         void affichage();
 
 };
@@ -140,15 +155,9 @@ class Usine
 /*-----------------------------------------------------------------------------------*/
 int main()
 {
-
     Departement dep_cons(31,2000);
     dep_cons.affichage();
-    /*
-    cpr::Response r = cpr::Get(cpr::Url{"http://localhost:8000/departement/1"});
-    cout << "la réponse est: " << r.text << endl;
-    json j= json::parse(r.text);
-    cout << "numero: " << j["numero"]<< " et " << "prix_m2: "<< j["prix_m2"]<< endl;
-    */
+
     json data_dep;
     data_dep ["numero"] = 31;
     data_dep ["prix_m2"] = 2000;
@@ -156,21 +165,23 @@ int main()
     Departement dep_cons_json(data_dep);
     dep_cons_json.affichage();
 
-    Departement dep_cons_id(1);
+    Departement dep_cons_id(id_dep);
     dep_cons_id.affichage();
 
-    /*json data_mach;
-    data_mach ["nom"] = "four";
-    data_mach ["prix"] = 1000;
-
-    Machine mach_cons_json(data_mach);
-    mach_cons_json.affichage();*/
 
     Machine mach_cons("four", 1000);
     mach_cons.affichage();
 
-    Machine mach_cons_id(5);
+    json data_mach;
+    data_mach ["nom"] = "four";
+    data_mach ["prix"] = 1000;
+
+    Machine mach_cons_json(data_mach);
+    mach_cons_json.affichage();
+
+    Machine mach_cons_id(id_mach_1);
     mach_cons_id.affichage();
+
 
     Ingredient ing_cons("houblon");
     ing_cons.affichage();
@@ -180,80 +191,70 @@ int main()
     Ingredient ing_cons_json(data_ing);
     ing_cons_json.affichage();*/
 
-    Ingredient ing_cons_id(4);
+    Ingredient ing_cons_id(id_ing_1);
     ing_cons_id.affichage();
 
 
-    unique_ptr<Ingredient> houblon = make_unique<Ingredient>("houblon");
-    unique_ptr<Departement> departement = make_unique<Departement>(31, 2000);
+    unique_ptr<Ingredient> houblon = make_unique<Ingredient>(id_ing_1);
+    unique_ptr<Departement> departement = make_unique<Departement>(id_dep);
     Prix prix_cons(move(houblon), move(departement), 20);
     prix_cons.affichage();
 
-    Prix prix_cons_id(4);
+    Prix prix_cons_id(id_prix_1);
     prix_cons_id.affichage();
 
-    unique_ptr<Ingredient> orge = make_unique<Ingredient>("orge");
+
+    unique_ptr<Ingredient> orge = make_unique<Ingredient>(id_ing_2);
     QuantiteIngredient qi_cons(move(orge), 100);
     qi_cons.affichage();
 
-    QuantiteIngredient qi_id(9);
+    QuantiteIngredient qi_id(id_qi_2);
     qi_id.affichage();
 
+
     // Stockez les objets dans des variables
-    unique_ptr<Machine> four = make_unique<Machine>("four", 1000);
-    unique_ptr<Ingredient> orge_ = make_unique<Ingredient>("orge");
-    unique_ptr<Ingredient> houblon_ = make_unique<Ingredient>("houblon");
+    unique_ptr<Machine> four = make_unique<Machine>(id_mach_1);
     vector<unique_ptr<QuantiteIngredient>> ings;
-    ings.push_back(make_unique<QuantiteIngredient>( move(houblon_) , 50));
-    ings.push_back(make_unique<QuantiteIngredient>( move(orge_) , 100));
+    ings.push_back(make_unique<QuantiteIngredient>(id_qi_1));
+    ings.push_back(make_unique<QuantiteIngredient>( id_qi_2));
 
     // Créez un objet Action en utilisant les variables précédemment créées
     Action act_cons(move(four), "ebullition", 5, move(ings));
     act_cons.affichage();
 
-    Action act_cons_id(4);
+    Action act_cons_id(id_action);
     act_cons_id.affichage();
 
 
-    unique_ptr<Machine> ffour = make_unique<Machine>("four", 1000);
-    unique_ptr<Ingredient> oorge_ = make_unique<Ingredient>("orge");
-    unique_ptr<Ingredient> hhoublon_ = make_unique<Ingredient>("houblon");
-    vector<unique_ptr<QuantiteIngredient>> iings;
-    iings.push_back(make_unique<QuantiteIngredient>( move(hhoublon_) , 50));
-    iings.push_back(make_unique<QuantiteIngredient>( move(oorge_) , 100));
-
-    unique_ptr<Action> actt = make_unique<Action>(move(ffour),"ebullition", 5, move(iings) );
+    unique_ptr<Action> actt = make_unique<Action>(id_action);
 
     Recette rec_cons("witbier",move(actt) );
     rec_cons.affichage();
 
-    Recette rec_cons_id (4);
+    Recette rec_cons_id (id_recette);
     rec_cons_id.affichage();
 
-    unique_ptr<Departement> dep_ = make_unique<Departement>(31, 2000);
+
+    unique_ptr<Departement> dep_ = make_unique<Departement>(id_dep);
+
     vector<unique_ptr<Machine>> machs;
-    machs.push_back(make_unique<Machine>("four", 1000));
-    machs.push_back(make_unique<Machine>("mash_tun", 2000));
-    unique_ptr<Ingredient> ooorge_ = make_unique<Ingredient>("orge");
-    unique_ptr<Ingredient> hhhoublon_ = make_unique<Ingredient>("houblon");
+    machs.push_back(make_unique<Machine>(id_mach_1));
+    machs.push_back(make_unique<Machine>(id_mach_2));
+
     vector<unique_ptr<QuantiteIngredient>> iiings;
-    iiings.push_back(make_unique<QuantiteIngredient>( move(hhhoublon_) , 50));
-    iiings.push_back(make_unique<QuantiteIngredient>( move(ooorge_) , 100));
+    iiings.push_back(make_unique<QuantiteIngredient>( id_qi_1));
+    iiings.push_back(make_unique<QuantiteIngredient>( id_qi_2));
 
-    unique_ptr<Machine> fffour = make_unique<Machine>("four", 1000);
-    unique_ptr<Ingredient> oooorge_ = make_unique<Ingredient>("orge");
-    unique_ptr<Ingredient> hhhhoublon_ = make_unique<Ingredient>("houblon");
-    vector<unique_ptr<QuantiteIngredient>> iiiings;
-    iiiings.push_back(make_unique<QuantiteIngredient>( move(hhhhoublon_) , 50));
-    iiiings.push_back(make_unique<QuantiteIngredient>( move(oooorge_) , 100));
 
-    unique_ptr<Action> acttt = make_unique<Action>(move(fffour),"ebullition", 5, move(iiiings) );
     vector<unique_ptr<Recette>> recc;
-    recc.push_back(make_unique<Recette>("witbier", move(acttt)));
+    recc.push_back(make_unique<Recette>(id_recette));
 
 
     Usine usine_cons(move(dep_), 50, move(machs), move(recc), move(iiings));
     usine_cons.affichage();
+
+    Usine usine_cons_id(id_usine);
+    usine_cons_id.affichage();
 
 
     return 0;
@@ -310,6 +311,7 @@ void Machine::affichage ()
     cout<<"Nom de la machine: "<<_nom<<",\t";
     cout<<"Prix:"<<_prix<<endl;
 }
+
 /*-----------------------------------------------------------------------*/
 Ingredient::Ingredient(string nom): _nom(nom)
 {}
@@ -344,21 +346,23 @@ Prix::Prix(int id)
     string url = "http://localhost:8000/prix/" + to_string(id);
     cpr::Response r = cpr::Get(cpr::Url{url});
 	json data = json::parse(r.text);
-    set(data["ingredient"], data["departement"], data["prix"]);
+    set(data["prix"], data["id"]);
 }
 
-void Prix::set (string n, int d, int p)
+void Prix::set (const int p, const int i)
 {
-    string nom_ingredient = n;
-    int numero_departement = d;
-    int prix_ = p;
+    unique_ptr<Ingredient> ingredient;
 
-    unique_ptr<Ingredient> ingredient = make_unique<Ingredient>(nom_ingredient);
-    unique_ptr<Departement> departement = make_unique<Departement>(numero_departement, 2000);
+    if (i == id_prix_1)
+        ingredient = make_unique<Ingredient>(id_ing_1);
+    else if (i == id_prix_2)
+        ingredient = make_unique<Ingredient>(id_ing_2);
+
+    unique_ptr<Departement> departement = make_unique<Departement>(id_dep);
 
     _ingredient = move(ingredient);
     _departement = move(departement);
-    _prix = prix_;
+    _prix = p;
 }
 
 void Prix::affichage ()
@@ -381,12 +385,11 @@ QuantiteIngredient::QuantiteIngredient(int id)
 void QuantiteIngredient::set (string n, int q)
 {
     string nom_ingredient = n;
-    int quantite_ = q;
 
     unique_ptr<Ingredient> ingredient = make_unique<Ingredient>(nom_ingredient);
 
     _ingredient = move(ingredient);
-    _quantite = quantite_;
+    _quantite = q;
 }
 void QuantiteIngredient::affichage()
 {
@@ -409,21 +412,19 @@ Action::Action(int id)
 void Action::set (string n, string c, int d, vector<string> i)
 {
     string nom_machine = n;
-    string commande_ = c;
-    int duree_ = d;
     vector<string> ingredients_ = i;
 
     unique_ptr<Machine> mach = make_unique<Machine>(nom_machine, 1000);
     vector<unique_ptr<QuantiteIngredient>> ingss;
-    for(const auto& i : ingredients_)
+    for(const auto& j : ingredients_)
     {
-        ingss.push_back(make_unique<QuantiteIngredient>(move(make_unique<Ingredient>(i)),100));
+        ingss.push_back(make_unique<QuantiteIngredient>(move(make_unique<Ingredient>(j)),100));
     }
 
     _machine = move(mach);
     _ingredients = move(ingss);
-    _commande = commande_;
-    _duree = duree_;
+    _commande = c;
+    _duree = d;
 }
 
 void Action::affichage()
@@ -462,7 +463,7 @@ void Recette::set(string n, vector<string> i)
     vector<string> action_ingredients_ = i;
 
 
-    unique_ptr<Machine> four = make_unique<Machine>("four", 1000);
+    unique_ptr<Machine> four = make_unique<Machine>(id_mach_1);
     vector<unique_ptr<QuantiteIngredient>> ingsss;
     for(const auto& i : action_ingredients_)
     {
@@ -497,6 +498,43 @@ Usine::Usine(unique_ptr<Departement> departement, int taille, vector<unique_ptr<
   _stocks(move(stocks))
   {}
 
+Usine::Usine(int id){
+    string url = "http://localhost:8000/usine/" + to_string(id);
+    cpr::Response r = cpr::Get(cpr::Url{url});
+	json data = json::parse(r.text);
+    set(data["departement"], data["taille"], data["machines"], data["recettes"], data["stocks"]);
+}
+
+void Usine::set(int nu, int t, vector<string> nsm, vector<string> nsr, vector<string> nsi){
+    int num_departement = nu;
+    vector<string> nom_machines = nsm;
+    vector<string> nom_recettes = nsr;
+    vector<string> nom_ingredients_stocks= nsi;
+
+    unique_ptr<Departement> depp = make_unique<Departement>(num_departement, 2000);
+
+    vector<unique_ptr<Machine>> machss;
+    for(const auto& i : nom_machines) {
+        machss.push_back(make_unique<Machine>(move(i),1000));
+    }
+
+    vector<unique_ptr<QuantiteIngredient>> iiings;
+     for(const auto& ii : nom_ingredients_stocks){
+        iiings.push_back(make_unique<QuantiteIngredient>(move(make_unique<Ingredient>(ii)),100));
+    }
+
+    unique_ptr<Action> acttt = make_unique<Action>(id_action);
+    vector<unique_ptr<Recette>> recs;
+    for(const auto& iii : nom_recettes) {
+    recs.push_back(make_unique<Recette>(iii, move(acttt)));
+    }
+
+    _departement = move(depp);
+    _taille = t;
+    _machines = move(machss);
+    _recettes = move(recs);
+    _stocks = move(iiings);
+}
 void Usine::affichage(){
     cout<<"Departement: "<< _departement->_numero <<", \t";
     cout<<"Taille: "<< _taille <<", \t";
@@ -530,4 +568,11 @@ void Usine::affichage(){
         }
     }
     cout << "]" << endl;
+}
+
+int get_id(string url)
+{
+    cpr::Response r = cpr::Get(cpr::Url{url});
+	json data = json::parse(r.text);
+    return (data["id"]);
 }
