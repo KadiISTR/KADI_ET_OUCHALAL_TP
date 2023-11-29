@@ -155,9 +155,12 @@ class Usine
 /*-----------------------------------------------------------------------------------*/
 int main()
 {
+    cout<<" ********     1) Departement     ********"<<endl;
+    cout<<"Constructeur prenant directement les attributs :"<<endl;
     Departement dep_cons(31,2000);
     dep_cons.affichage();
 
+    cout<<"Constructe prenant un paramètre json data :"<<endl;
     json data_dep;
     data_dep ["numero"] = 31;
     data_dep ["prix_m2"] = 2000;
@@ -165,13 +168,16 @@ int main()
     Departement dep_cons_json(data_dep);
     dep_cons_json.affichage();
 
+    cout<<"Constructe prenant un paramètre int id :"<<endl;
     Departement dep_cons_id(id_dep);
     dep_cons_id.affichage();
 
-
+    cout<<" ********     2) Machine    ********"<<endl;
+    cout<<"Constructeur prenant directement les attributs :"<<endl;
     Machine mach_cons("four", 1000);
     mach_cons.affichage();
 
+    cout<<"Constructe prenant un paramètre json data :"<<endl;
     json data_mach;
     data_mach ["nom"] = "four";
     data_mach ["prix"] = 1000;
@@ -179,10 +185,12 @@ int main()
     Machine mach_cons_json(data_mach);
     mach_cons_json.affichage();
 
+    cout<<"Constructe prenant un paramètre int id :"<<endl;
     Machine mach_cons_id(id_mach_1);
     mach_cons_id.affichage();
 
-
+    cout<<" ********     3) Ingredient   ********"<<endl;
+    cout<<"Constructeur prenant directement les attributs :"<<endl;
     Ingredient ing_cons("houblon");
     ing_cons.affichage();
 
@@ -190,28 +198,33 @@ int main()
     data_ing ["nom"] = "orge";
     Ingredient ing_cons_json(data_ing);
     ing_cons_json.affichage();*/
-
+    cout<<"Constructe prenant un paramètre int id :"<<endl;
     Ingredient ing_cons_id(id_ing_1);
     ing_cons_id.affichage();
 
-
+    cout<<" ********     4) Prix  ********"<<endl;
+    cout<<"Constructeur prenant directement les attributs :"<<endl;
     unique_ptr<Ingredient> houblon = make_unique<Ingredient>(id_ing_1);
     unique_ptr<Departement> departement = make_unique<Departement>(id_dep);
     Prix prix_cons(move(houblon), move(departement), 20);
     prix_cons.affichage();
 
+    cout<<"Constructe prenant un paramètre int id :"<<endl;
     Prix prix_cons_id(id_prix_1);
     prix_cons_id.affichage();
 
-
+    cout<<" ********     5) QuantiteIngredient  ********"<<endl;
+    cout<<"Constructeur prenant directement les attributs :"<<endl;
     unique_ptr<Ingredient> orge = make_unique<Ingredient>(id_ing_2);
     QuantiteIngredient qi_cons(move(orge), 100);
     qi_cons.affichage();
 
+    cout<<"Constructe prenant un paramètre int id :"<<endl;
     QuantiteIngredient qi_id(id_qi_2);
     qi_id.affichage();
 
-
+    cout<<" ********     6) Action  ********"<<endl;
+    cout<<"Constructeur prenant directement les attributs :"<<endl;
     // Stockez les objets dans des variables
     unique_ptr<Machine> four = make_unique<Machine>(id_mach_1);
     vector<unique_ptr<QuantiteIngredient>> ings;
@@ -222,19 +235,23 @@ int main()
     Action act_cons(move(four), "ebullition", 5, move(ings));
     act_cons.affichage();
 
+    cout<<"Constructe prenant un paramètre int id :"<<endl;
     Action act_cons_id(id_action);
     act_cons_id.affichage();
 
-
+    cout<<" ********     7) Recette  ********"<<endl;
+    cout<<"Constructeur prenant directement les attributs :"<<endl;
     unique_ptr<Action> actt = make_unique<Action>(id_action);
 
     Recette rec_cons("witbier",move(actt) );
     rec_cons.affichage();
 
+    cout<<"Constructe prenant un paramètre int id :"<<endl;
     Recette rec_cons_id (id_recette);
     rec_cons_id.affichage();
 
-
+    cout<<" ********     8) Usine  ********"<<endl;
+    cout<<"Constructeur prenant directement les attributs :"<<endl;
     unique_ptr<Departement> dep_ = make_unique<Departement>(id_dep);
 
     vector<unique_ptr<Machine>> machs;
@@ -253,6 +270,7 @@ int main()
     Usine usine_cons(move(dep_), 50, move(machs), move(recc), move(iiings));
     usine_cons.affichage();
 
+    cout<<"Constructe prenant un paramètre int id :"<<endl;
     Usine usine_cons_id(id_usine);
     usine_cons_id.affichage();
 
