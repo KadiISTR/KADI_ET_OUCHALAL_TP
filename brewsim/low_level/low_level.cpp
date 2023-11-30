@@ -1,3 +1,11 @@
+/*Code C++*/
+/*GROUPE TP01*/
+/*Noms :
+         KADI Farid
+         OUCHALAL Larbi    */
+
+
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -7,9 +15,10 @@
 
 using namespace std;
 using json = nlohmann::json;
+/*declaration d'une fonction qui permet de récuperer les IDs*/
 
 int get_id(string url);
-
+/* Id des différentes instances de nos classes*/
 const int id_dep = get_id("http://localhost:8000/departement/1");
 const int id_mach_1 = get_id("http://localhost:8000/machine/5");
 const int id_mach_2 = get_id("http://localhost:8000/machine/6");
@@ -30,13 +39,13 @@ class Departement
         int _numero;
         int _prix_m2;
     public:
-        Departement(int numero , int prix_m2 );
-        Departement(json data);
-        Departement(int id = 0);
-        void set(int n, int p);
-        void affichage ();
-        friend class Prix;
-        friend class Usine;
+        Departement(int numero , int prix_m2 ); // constructeur
+        Departement(json data); // constructeur json
+        Departement(int id = 0); // constructeur par Id
+        void set(int n, int p); // setter pour nos attributs
+        void affichage (); // fonction d'affichage
+        friend class Prix;   // Class prix en friend pour pouvoir accéder a ses attributs
+        friend class Usine;   // Class Usine en friend pour pouvoir accéder a ses attributs
 };
 
 class Machine
@@ -45,13 +54,13 @@ class Machine
         string _nom;
         int _prix;
     public:
-        Machine(string nom, int prix);
-        Machine(json data);
-        Machine(int id);
-        void set(string n, int p);
-        void affichage ();
-        friend class Action;
-        friend class Usine;
+        Machine(string nom, int prix); /*Constructeur*/
+        Machine(json data); /*Constructeur json*/
+        Machine(int id); /*Constructeur id*/
+        void set(string n, int p); /*setter pour nos attributs*/
+        void affichage (); /*méthode d'affichage*/
+        friend class Action;  // Class Action en friend pour pouvoir accéder a ses attributs
+        friend class Usine;   // Class Usine en friend pour pouvoir accéder a ses attributs
 };
 
 class Ingredient
@@ -60,30 +69,30 @@ class Ingredient
         string _nom;
 
     public:
-        Ingredient(string nom);
+        Ingredient(string nom); // constructeur
         //Ingredient(json data);
-        Ingredient(int id);
-        void set (string n);
-        void affichage ();
-        friend class Prix;
-        friend class QuantiteIngredient;
-        friend class Action;
-        friend class Recette;
-        friend class Usine;
+        Ingredient(int id); // constructeur id
+        void set (string n); // setter pour nos attributs
+        void affichage (); // méthode d'affichage
+        friend class Prix; // Class prix en friend pour pouvoir accéder a ses attributs
+        friend class QuantiteIngredient; // Class QuantiteIngredients en friend pour pouvoir accéder a ses attributs
+        friend class Action; // Class Action en friend pour pouvoir accéder a ses attributs
+        friend class Recette; // Class Recette en friend pour pouvoir accéder a ses attributs
+        friend class Usine;  // Class Usine en friend pour pouvoir accéder a ses attributs
 
 };
 
 class Prix
 {
     private:
-        unique_ptr<Ingredient> _ingredient;
-	    unique_ptr<Departement> _departement;
+        unique_ptr<Ingredient> _ingredient; // attribut pointeur de type Ingrédient
+	    unique_ptr<Departement> _departement; // attribut pointeur de type Departement
 	    int _prix;
     public:
-        Prix(unique_ptr<Ingredient> ingredient, unique_ptr<Departement> departement, int prix);
-        Prix(int id);
-        void set (const int p, const int i);
-        void affichage ();
+        Prix(unique_ptr<Ingredient> ingredient, unique_ptr<Departement> departement, int prix); // constructeur
+        Prix(int id); // constructeur par Id
+        void set (const int p, const int i); // setteur
+        void affichage (); // méthode d'affichage
 
 };
 
@@ -94,43 +103,43 @@ class QuantiteIngredient
         int _quantite;
 
     public:
-        QuantiteIngredient(unique_ptr<Ingredient> ingredient, int quantite);
-        QuantiteIngredient(int id);
-        void set (string n, int q);
-        void affichage();
-        friend class Action;
-        friend class Recette;
-        friend class Usine;
+        QuantiteIngredient(unique_ptr<Ingredient> ingredient, int quantite); // constructeur
+        QuantiteIngredient(int id); // constructeur Id
+        void set (string n, int q); // setter
+        void affichage(); // méthode d'affichage
+        friend class Action; // Class Action en friend pour pouvoir accéder a ses attributs
+        friend class Recette; // Class Recette en friend pour pouvoir accéder a ses attributs
+        friend class Usine; // class Usine en friend pour pouvoir accéder a ses attributs
 
 };
 
 class Action
 {
     private:
-        unique_ptr<Machine> _machine;
+        unique_ptr<Machine> _machine;  // attribut pointeur de type machine
         string _commande;
         int _duree;
-        vector<unique_ptr<QuantiteIngredient>> _ingredients;
+        vector<unique_ptr<QuantiteIngredient>> _ingredients; // vecteur de pointeurs car on posséde multiples ingrédients
 
     public:
-        Action(unique_ptr<Machine> machine, string commande, int duree, vector<unique_ptr<QuantiteIngredient>> ingredients);
-        Action(int id);
-        void set (string n, string c, int d, vector<string> i);
-        void affichage();
-        friend class Recette;
+        Action(unique_ptr<Machine> machine, string commande, int duree, vector<unique_ptr<QuantiteIngredient>> ingredients); // constructeur
+        Action(int id); // constructeur par Id
+        void set (string n, string c, int d, vector<string> i); // setter
+        void affichage(); // méthode d'affichage
+        friend class Recette; // Class Recette en friend pour pouvoir accéder a ses attributs
 };
 
 class Recette
 {
     private:
         string _nom;
-        unique_ptr<Action> _action;
+        unique_ptr<Action> _action; // attribuut pointeur de type action
 
     public:
-        Recette(string nom, unique_ptr<Action> action);
-        Recette(int id);
-        void set (string n, vector<string> i);
-        void affichage();
+        Recette(string nom, unique_ptr<Action> action); // constructeur
+        Recette(int id); // constructeur Id
+        void set (string n, vector<string> i); // setter
+        void affichage(); //méthode d'affichage
         friend class Usine;
 
 };
@@ -273,6 +282,15 @@ int main()
     cout<<"Constructe prenant un paramètre int id :"<<endl;
     Usine usine_cons_id(id_usine);
     usine_cons_id.affichage();
+
+    json my_json =  {
+                {"departement", 31},
+                {"benefices", 100}};
+
+    string url = "http://localhost:8000/admin/high_level/vente/";
+    cpr::Response r = cpr::Post(cpr::Url{url},
+                    cpr::Body{my_json.dump()});
+
 
 
     return 0;

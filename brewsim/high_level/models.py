@@ -200,3 +200,19 @@ class Usine(models.Model):
             "recettes": liste_recettes,
             "stocks": liste_recettes,
         }
+
+
+class Vente(models.Model):
+    departement = models.ForeignKey(Departement, on_delete=models.PROTECT)
+    benefices = models.IntegerField()
+
+    def __str__(self):
+        return (
+            f"Departement numero:{self.departement.numero}, Benefices:{self.benefices}"
+        )
+
+    def json(self):
+        return {"departement": self.departement.numero, "benefices": self.benefices}
+
+    def json_extended(self):
+        return self.json()

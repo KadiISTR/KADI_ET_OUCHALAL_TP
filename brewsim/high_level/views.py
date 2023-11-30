@@ -12,6 +12,7 @@ from .models import (
     QuantiteIngredient,
     Recette,
     Usine,
+    Vente,
 )
 
 
@@ -73,6 +74,30 @@ class UsineDetailView(DetailView):
 
 class APIDetailView(DetailView):
     model = Departement
+    model = Action
+    model = Ingredient
+    model = Machine
+    model = Prix
+    model = QuantiteIngredient
+    model = Recette
+    model = Usine
 
     def render_to_response(self, context, **response_kwargs):
         return HttpResponse(dumps(self.object.json_extended()))
+
+
+"""''
+@method_decorator(csrf_exempt,name="dispatch")
+class VenteCreateView(CreateView):
+    model = Vente
+
+    def render_to_response(self, context, **response_kwargs):
+        return HttpResponse(dumps(self.object.json()))
+ """
+
+
+class VenteDetailView(DetailView):
+    model = Vente
+
+    def render_to_response(self, context, **response_kwargs):
+        return HttpResponse(dumps(self.object.json()))
